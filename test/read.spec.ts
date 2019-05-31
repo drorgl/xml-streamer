@@ -53,7 +53,7 @@ describe("read method", () => {
 		const xmlStream = fs.createReadStream("./test/TestFiles/manyItems.xml");
 		const parser = new XmlParser({ resourcePath: "/items/item" });
 		let objCount = 0;
-		const endEventOcurred = false;
+		let endEventOcurred = false;
 
 		parser.on("readable", () => {
 			read();
@@ -69,6 +69,7 @@ describe("read method", () => {
 		});
 
 		parser.on("end", () => {
+			endEventOcurred = true;
 			// console.log(objCount)
 			should(objCount).deepEqual(296);
 			done();
@@ -80,7 +81,7 @@ describe("read method", () => {
 		const xmlStream = fs.createReadStream("./test/TestFiles/hugeFile.xml");
 		const parser = new XmlParser({ resourcePath: "/items/item" });
 		let objCount = 0;
-		const endEventOcurred = false;
+		let endEventOcurred = false;
 
 		parser.on("readable", () => {
 			read();
@@ -96,7 +97,8 @@ describe("read method", () => {
 		});
 
 		parser.on("end", () => {
-			// console.log(objCount)
+			endEventOcurred = true;
+			// console.log(objCount);
 			should(objCount).deepEqual(2072);
 			done();
 		});

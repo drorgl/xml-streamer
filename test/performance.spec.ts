@@ -6,7 +6,7 @@ import stream from "stream";
 import zlib from "zlib";
 
 import { XmlParser } from "../src/parser";
-describe.skip("performance testing", () => {
+describe("performance testing", () => {
 	it("should properly parse more than 500 MB of file.", function(done)  {
 		const parser = new XmlParser({ resourcePath: "/items/item" });
 		// var wsStream = fs.createWriteStream('./test/TestFiles/MB_and_GB_size_files/MBFile.xml')

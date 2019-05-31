@@ -54,12 +54,12 @@ describe("Parse function should work properly", () => {
 		const xml = fs.readFileSync("./test/TestFiles/randomText.xml");
 		const parser = new XmlParser({ resourcePath: "/items/item" });
 		const expectedData = [{
-			$: { id: "1", test: "hello" }, _: " item  one  two",
+			$: { id: "1", test: "hello" }, _: "item one two",
 			subitem: [{ $: { sub: "TESTING SUB" }, _: "one" },
 			{ $: { sub: "2" }, _: "two" }]
 		},
 		{
-			$: { id: "2" }, _: " item  one two three  four",
+			$: { id: "2" }, _: "item one two three four",
 			subitem: [{ _: "three" }, { _: "four" }, { _: "five" }]
 		}
 		];
@@ -89,7 +89,7 @@ describe("Parse function should work properly", () => {
 
 		parser.parse(xml, (err, data) => {
 			// console.log(err)
-			should(err.message).equal("mismatched tag at line no: 11");
+			should(err.message).equal("mismatched tag at line no: 12");
 			should(data).not.be.ok();
 			done();
 		});

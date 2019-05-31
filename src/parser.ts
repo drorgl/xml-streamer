@@ -4,6 +4,7 @@ import * as expat from "node-expat";
 import stream from "stream";
 import util from "util";
 
+import { SaxLtx } from "./ltx";
 import { ParserState } from "./parserState";
 const defaults = {
 	resourcePath: "",
@@ -11,7 +12,8 @@ const defaults = {
 	attrsKey: "$",
 	textKey: "_",
 	explicitArray: true,
-	verbatimText: false
+	verbatimText: false,
+	preserveWhitespace: false
 };
 
 export interface IXmlParserOptions {
@@ -21,18 +23,19 @@ export interface IXmlParserOptions {
 	textKey?: string;
 	explicitArray?: boolean;
 	verbatimText?: boolean;
+	preserveWhitespace?: boolean;
 }
 
 export class XmlParser extends stream.Transform {
 	public parserState: ParserState;
 	private opts: IXmlParserOptions;
 	private _readableState: { objectMode: true, buffer: any };
-	private parser: expat.Parser;
+	private parser: SaxLtx; // expat.Parser;
 	constructor(opts?: IXmlParserOptions) {
 		super();
 		this.opts = _.defaults(opts, defaults);
 		this.parserState = new ParserState();
-		this.parser = new expat.Parser();
+		this.parser = new SaxLtx(); // new expat.Parser("UTF-8");
 		this._readableState.objectMode = true;
 	}
 
@@ -63,11 +66,12 @@ export class XmlParser extends stream.Transform {
 			registerEvents.call(this);
 		}
 
-		if (typeof chunk === "string") {
-			if (!parser.parse("", true)) { processError.call(this); }
-		} else {
-			if (!parser.parse(chunk.toString())) { processError.call(this); }
-		}
+		parser.write(chunk);
+		// if (typeof chunk === "string") {
+			// if (!parser.parse("", true)) { processError.call(this); }
+		// } else {
+			// if (!parser.parse(chunk.toString())) {processError.call(this); }
+		// }
 	}
 
 	public parse(chunk: Buffer | string, cb: (error: Error, data?: Buffer) => void) {
@@ -80,15 +84,22 @@ export class XmlParser extends stream.Transform {
 			registerEvents.call(this);
 		}
 
-		if (chunk instanceof Buffer) { chunk = chunk.toString(); }
+		// if (chunk instanceof Buffer) { chunk = chunk.toString(); }
 
 		this.on("error", (err) => {
 			error = err;
 		});
 
-		if (!parser.parse(chunk)) {
-			error = processError.call(this);
+		if (chunk.length === 0) {
+			parser.end();
+			this.emit("end");
+			this.removeAllListeners();
 		}
+
+		parser.write(chunk);
+		// if (!parser.parse(chunk)) {
+		// 	error = processError.call(this);
+		// }
 
 		if (error) { return cb(error); }
 
@@ -108,8 +119,9 @@ export class XmlParser extends stream.Transform {
 
 function registerEvents() {
 	const scope = this;
-	const parser: expat.Parser = this.parser;
-	const state = this.parserState;
+	// const parser: expat.Parser = this.parser;
+	const parser: SaxLtx = this.parser;
+	const state: ParserState = this.parserState;
 	let lastIndex;
 	const resourcePath = this.opts.resourcePath;
 	const attrsKey = this.opts.attrsKey;
@@ -117,8 +129,10 @@ function registerEvents() {
 	const interestedNodes = state.interestedNodes;
 	const explicitArray = this.opts.explicitArray;
 	const verbatimText = this.opts.verbatimText;
+	const preserveWhitespace = this.opts.preserveWhitespace;
 
 	parser.on("startElement", (name, attrs) => {
+		// console.log("start", name, attrs);
 		if (state.isRootNode) { state.isRootNode = false; }
 		state.currentPath = state.currentPath + "/" + name;
 		checkForResourcePath(name);
@@ -126,10 +140,15 @@ function registerEvents() {
 	});
 
 	parser.on("endElement", (name) => {
+		// console.log("end?", name, state.currentPath);
 		state.lastEndedNode = name;
 		lastIndex = state.currentPath.lastIndexOf("/" + name);
+		if (state.currentPath.substring(lastIndex + 1).indexOf("/") !== -1) {
+			processError.call(this, `mismatched tag`);
+		}
 		state.currentPath = state.currentPath.substring(0, lastIndex);
 		if (state.isPathfound) { processEndElement(name); }
+		// console.log("end!", name, state.currentPath);
 		checkForResourcePath(name);
 	});
 
@@ -209,19 +228,24 @@ function registerEvents() {
 			tempObj = tempObj[pathTokens[i] as any];
 		}
 		if (Array.isArray(tempObj)) { tempObj = tempObj[tempObj.length - 1]; }
+
 		scope.emit(name, tempObj);
 		scope.push(tempObj);
 	}
 
-	function processText(text: string) {
+ function processText(text: string) {
 		if ((!text) || ((!verbatimText) && !/\S/.test(text))) {
 			return;
 		}
+
 		const path = getRelativePath();
 		let tempObj = state.object;
 		if (!path) {
 			if (!state.object[textKey]) { state.object[textKey] = ""; }
 			state.object[textKey] = state.object[textKey] + text;
+			if ((! preserveWhitespace)) {
+				state.object[textKey] = state.object[textKey].replace(/\s+/g, " ").trim();
+			}
 			return;
 		}
 		const tokens = path.split(".");
@@ -239,13 +263,23 @@ function registerEvents() {
 			const obj = tempObj[tempObj.length - 1];
 			if (!obj[textKey]) { obj[textKey] = ""; }
 			obj[textKey] = obj[textKey] + text;
+
+			if ((! preserveWhitespace)) {
+				obj[textKey] = obj[textKey].replace(/\s+/g, " ").trim();
+			}
+
 		} else {
 			if (!tempObj[textKey]) { tempObj[textKey] = ""; }
 			tempObj[textKey] = tempObj[textKey] + text;
+
+			if ((! preserveWhitespace)) {
+				tempObj[textKey] = tempObj[textKey].replace(/\s+/g, " ").trim();
+			}
 		}
+
 	}
 
-	function checkForResourcePath(name: string) {
+ function checkForResourcePath(name: string) {
 		if (resourcePath) {
 			if (state.currentPath.indexOf(resourcePath) === 0) {
 				state.isPathfound = true;
@@ -262,7 +296,7 @@ function registerEvents() {
 		}
 	}
 
-	function getRelativePath() {
+ function getRelativePath() {
 		let tokens;
 		let jsonPath;
 		let index;
@@ -294,7 +328,12 @@ function processError(err: Error) {
 	} else {
 		error = parser.getError();
 	}
-	error = new Error(error + " at line no: " + parser.getCurrentLineNumber());
+	error = new Error(`${error} at line no: ${parser.getCurrentLineNumber()}`);
 	this.emit("error", error);
 	return error;
 }
+
+// setInterval(() => {
+// 	console.log("handles", (process as any)._getActiveHandles());
+// 	console.log("requests", (process as any)._getActiveRequests());
+// }, 5000);

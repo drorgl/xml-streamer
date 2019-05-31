@@ -50,6 +50,7 @@ declare module "node-expat" {
     
     export class Parser extends Stream implements NodeJS.WritableStream, TypedEmitter<ParserEventsMap>
     {
+        constructor(encoding:string);
         readonly writable: boolean;
         stop(): this;
         

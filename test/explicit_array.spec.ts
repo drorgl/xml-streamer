@@ -173,11 +173,11 @@ describe("should respect explicitArray constructor option", () => {
 		const xml = fs.readFileSync("./test/TestFiles/randomText.xml");
 		const parser = new XmlParser({ resourcePath: "/items/item", explicitArray: false });
 		const expectedData = [{
-			$: { id: "1", test: "hello" }, _: " item  one  two",
+			$: { id: "1", test: "hello" }, _: "item one two",
 			subitem: { $: { sub: "2" }, _: "two" }
 		},
 		{
-			$: { id: "2" }, _: " item  one two three  four",
+			$: { id: "2" }, _: "item one two three four",
 			subitem: { _: "five" }
 		}
 		];
@@ -208,7 +208,7 @@ describe("should respect explicitArray constructor option", () => {
 
 		parser.parse(xml, (err, data) => {
 			// console.log(err)
-			should(err.message).equal("mismatched tag at line no: 11");
+			should(err.message).equal("mismatched tag at line no: 12");
 			should(data).not.be.ok();
 			done();
 		});
@@ -226,7 +226,7 @@ describe("should respect explicitArray constructor option", () => {
 				"!": { id: "2" },
 				"subitem": { "%": "five" }
 			}];
-		const actualData : string[] = [];
+		const actualData: string[] = [];
 		let dataEventCount = 0;
 
 		parser.on("data", (data) => {

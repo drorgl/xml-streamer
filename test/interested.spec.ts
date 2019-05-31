@@ -165,7 +165,7 @@ describe("interested Nodes", () => {
 				{ $: { sub: "TESTING SUB" }, _: "one" },
 				{ $: { sub: "2" }, _: "two" },
 				{
-					$: { id: "1", test: "hello" }, _: " item  one  two",
+					$: { id: "1", test: "hello" }, _: "item one two",
 					subitem: [{ $: { sub: "TESTING SUB" }, _: "one" },
 					{ $: { sub: "2" }, _: "two" }]
 				},
@@ -173,19 +173,19 @@ describe("interested Nodes", () => {
 				{ _: "four" },
 				{ _: "five" },
 				{
-					$: { id: "2" }, _: " item  one two three  four",
+					$: { id: "2" }, _: "item one two three four",
 					subitem: [{ _: "three" }, { _: "four" }, { _: "five" }]
 				}
 			];
 		const expectedItems = [
 			{
-				$: { id: "1", test: "hello" }, _: " item  one  two",
+				$: { id: "1", test: "hello" }, _: "item one two",
 				subitem:
 					[{ $: { sub: "TESTING SUB" }, _: "one" },
 					{ $: { sub: "2" }, _: "two" }]
 			},
 			{
-				$: { id: "2" }, _: " item  one two three  four",
+				$: { id: "2" }, _: "item one two three four",
 				subitem: [{ _: "three" }, { _: "four" }, { _: "five" }]
 			}];
 		const actualItems: string[] = [];

@@ -5,6 +5,10 @@
 
 You use [Node.js](https://nodejs.org) for speed? You process XML streams? Then you want the fastest XML to JS parser: `xml-streamer`, based on [node-expat](https://github.com/astro/node-expat) and It implements the Node.js `stream.Transform API`.
 
+## IMPORTANT
+
+This is a modified version of xml-streamer, the parser + tests stayed mostly the same but the core xml parser was replaced with [SaxLtx xml parser](https://github.com/xmppjs/ltx) due to reliability issues with node-expat, both this library and ltx were converted to typescript.
+
 ## Install
 
 ```
