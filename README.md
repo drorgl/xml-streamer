@@ -8,6 +8,7 @@ You use [Node.js](https://nodejs.org) for speed? You process XML streams? Then y
 ## IMPORTANT
 
 This is a modified version of xml-streamer, the parser + tests stayed mostly the same but the core xml parser was replaced with [SaxLtx xml parser](https://github.com/xmppjs/ltx) due to reliability issues with node-expat, both this library and ltx were converted to typescript.
+Please note that ltx parser is about 20% slower than node-expat.
 
 ## Install
 
