@@ -24,19 +24,39 @@
     "url": "https://github.com/Sai1919/xml-streamer"
   },
   "dependencies": {
-    "node-expat": "2.3.15",
-    "lodash": "4.17.5"
+    "lodash": "4.17.5",
+    "node-expat": "2.3.15"
   },
   "devDependencies": {
     "mocha": "^1.21.4",
-    "should": "11.1.1",
-    "standard": "8.5.0"
+    "should": "^13.2.3",
+    "@types/lodash": "^4.14.132",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.0.4",
+    "@types/should": "^13.0.0",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.1"
   },
   "optionalDependencies": {},
-  "main": "./parser",
+  "main": "dist/parser.js",
+  "types": "dist/parser.d.ts",
   "scripts": {
-    "test": "mocha && standard"
+    "performance-test": "node --prof node_modules/mocha/bin/_mocha -r ts-node/register test/**/*.spec.ts",
+    "test-one": "mocha -r ts-node/register",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "lint": "tslint --project .",
+    "dryrun": "tsc -noEmit",
+    "build": "tsc",
+    "prepublish": "npm run lint && npm run dryrun && npm run test",
+    "install": "npm run build"
   },
+  "contributors": [
+    {
+      "name": "Dror Gluska",
+      "email": "drorgl@gmail.com"
+    }
+  ],
   "maintainers": [
     {
       "name": "Sai Teja",
