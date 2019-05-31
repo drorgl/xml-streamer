@@ -1,6 +1,4 @@
-/// <reference types="../typings/node-expat" />
 import _ from "lodash";
-import * as expat from "node-expat";
 import stream from "stream";
 import util from "util";
 
@@ -30,12 +28,12 @@ export class XmlParser extends stream.Transform {
 	public parserState: ParserState;
 	private opts: IXmlParserOptions;
 	private _readableState: { objectMode: true, buffer: any };
-	private parser: SaxLtx; // expat.Parser;
+	private parser: SaxLtx;
 	constructor(opts?: IXmlParserOptions) {
 		super();
 		this.opts = _.defaults(opts, defaults);
 		this.parserState = new ParserState();
-		this.parser = new SaxLtx(); // new expat.Parser("UTF-8");
+		this.parser = new SaxLtx();
 		this._readableState.objectMode = true;
 	}
 
@@ -67,11 +65,6 @@ export class XmlParser extends stream.Transform {
 		}
 
 		parser.write(chunk);
-		// if (typeof chunk === "string") {
-			// if (!parser.parse("", true)) { processError.call(this); }
-		// } else {
-			// if (!parser.parse(chunk.toString())) {processError.call(this); }
-		// }
 	}
 
 	public parse(chunk: Buffer | string, cb: (error: Error, data?: Buffer) => void) {
@@ -84,8 +77,6 @@ export class XmlParser extends stream.Transform {
 			registerEvents.call(this);
 		}
 
-		// if (chunk instanceof Buffer) { chunk = chunk.toString(); }
-
 		this.on("error", (err) => {
 			error = err;
 		});
@@ -97,9 +88,6 @@ export class XmlParser extends stream.Transform {
 		}
 
 		parser.write(chunk);
-		// if (!parser.parse(chunk)) {
-		// 	error = processError.call(this);
-		// }
 
 		if (error) { return cb(error); }
 
@@ -119,7 +107,6 @@ export class XmlParser extends stream.Transform {
 
 function registerEvents() {
 	const scope = this;
-	// const parser: expat.Parser = this.parser;
 	const parser: SaxLtx = this.parser;
 	const state: ParserState = this.parserState;
 	let lastIndex;
@@ -132,7 +119,6 @@ function registerEvents() {
 	const preserveWhitespace = this.opts.preserveWhitespace;
 
 	parser.on("startElement", (name, attrs) => {
-		// console.log("start", name, attrs);
 		if (state.isRootNode) { state.isRootNode = false; }
 		state.currentPath = state.currentPath + "/" + name;
 		checkForResourcePath(name);
@@ -140,7 +126,6 @@ function registerEvents() {
 	});
 
 	parser.on("endElement", (name) => {
-		// console.log("end?", name, state.currentPath);
 		state.lastEndedNode = name;
 		lastIndex = state.currentPath.lastIndexOf("/" + name);
 		if (state.currentPath.substring(lastIndex + 1).indexOf("/") !== -1) {
@@ -148,7 +133,6 @@ function registerEvents() {
 		}
 		state.currentPath = state.currentPath.substring(0, lastIndex);
 		if (state.isPathfound) { processEndElement(name); }
-		// console.log("end!", name, state.currentPath);
 		checkForResourcePath(name);
 	});
 
@@ -233,7 +217,7 @@ function registerEvents() {
 		scope.push(tempObj);
 	}
 
- function processText(text: string) {
+	function processText(text: string) {
 		if ((!text) || ((!verbatimText) && !/\S/.test(text))) {
 			return;
 		}
@@ -243,7 +227,7 @@ function registerEvents() {
 		if (!path) {
 			if (!state.object[textKey]) { state.object[textKey] = ""; }
 			state.object[textKey] = state.object[textKey] + text;
-			if ((! preserveWhitespace)) {
+			if ((!preserveWhitespace)) {
 				state.object[textKey] = state.object[textKey].replace(/\s+/g, " ").trim();
 			}
 			return;
@@ -264,7 +248,7 @@ function registerEvents() {
 			if (!obj[textKey]) { obj[textKey] = ""; }
 			obj[textKey] = obj[textKey] + text;
 
-			if ((! preserveWhitespace)) {
+			if ((!preserveWhitespace)) {
 				obj[textKey] = obj[textKey].replace(/\s+/g, " ").trim();
 			}
 
@@ -272,14 +256,14 @@ function registerEvents() {
 			if (!tempObj[textKey]) { tempObj[textKey] = ""; }
 			tempObj[textKey] = tempObj[textKey] + text;
 
-			if ((! preserveWhitespace)) {
+			if ((!preserveWhitespace)) {
 				tempObj[textKey] = tempObj[textKey].replace(/\s+/g, " ").trim();
 			}
 		}
 
 	}
 
- function checkForResourcePath(name: string) {
+	function checkForResourcePath(name: string) {
 		if (resourcePath) {
 			if (state.currentPath.indexOf(resourcePath) === 0) {
 				state.isPathfound = true;
@@ -296,7 +280,7 @@ function registerEvents() {
 		}
 	}
 
- function getRelativePath() {
+	function getRelativePath() {
 		let tokens;
 		let jsonPath;
 		let index;
@@ -332,8 +316,3 @@ function processError(err: Error) {
 	this.emit("error", error);
 	return error;
 }
-
-// setInterval(() => {
-// 	console.log("handles", (process as any)._getActiveHandles());
-// 	console.log("requests", (process as any)._getActiveRequests());
-// }, 5000);

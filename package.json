@@ -24,8 +24,7 @@
     "url": "https://github.com/Sai1919/xml-streamer"
   },
   "dependencies": {
-    "lodash": "4.17.11",
-    "node-expat": "2.3.18"
+    "lodash": "4.17.11"
   },
   "devDependencies": {
     "mocha": "^6.1.4",

@@ -19,11 +19,9 @@
         "lib": ["es2017"],  
         "typeRoots": [
             "./node_modules/@types",
-            "./typings"
         ]
     },
     "include": [
-        "./typings/**/*.d.ts",
         "src/**/*"
     ],
     "exclude": [

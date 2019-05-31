@@ -43,11 +43,6 @@ export class SaxLtx extends events.EventEmitter {
 		}
 
 		this.removeAllListeners();
-
-		/* Uh, yeah */
-		// this.write = () => {
-		// 	// nop
-		// };
 	}
 	public write(data: Buffer | string) {
 		if (typeof data !== "string") {
