@@ -52,7 +52,7 @@
     "lint": "tslint --project .",
     "dryrun": "tsc -noEmit",
     "build": "tsc",
-    "prepublish": "npm run lint && npm run dryrun && npm run test",
+    "prepublish": "rimraf ./dist && npm run lint && npm run dryrun && npm run test && npm run build",
     "install": "npm run build",
     "coverage": "rimraf ./.nyc_output && rimraf ./coverage && nyc mocha -r ts-node/register -r source-map-support/register --ui bdd test/**/*.spec.{ts,tsx}\"",
     "doc": "rimraf ./docs && typedoc",
