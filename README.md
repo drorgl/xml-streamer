@@ -1,13 +1,8 @@
 # xml-streamer
 
-[![Build Status](https://travis-ci.org/Sai1919/xml-streamer.svg?branch=master)](https://travis-ci.org/Sai1919/xml-streamer)
-## Motivation
-
-You use [Node.js](https://nodejs.org) for speed? You process XML streams? Then you want the fastest XML to JS parser: `xml-streamer`, based on [node-expat](https://github.com/astro/node-expat) and It implements the Node.js `stream.Transform API`.
-
 ## IMPORTANT
 
-This is a modified version of xml-streamer, the parser + tests stayed mostly the same but the core xml parser was replaced with [SaxLtx xml parser](https://github.com/xmppjs/ltx) due to reliability issues with node-expat, both this library and ltx were converted to typescript.
+This is a modified version of xml-streamer, the parser + tests stayed mostly the same but the core xml parser was replaced with [SaxLtx xml parser](https://github.com/xmppjs/ltx) due to reliability/stability issues with node-expat, both this library and ltx were converted to typescript.
 Please note that ltx parser is about 20% slower than node-expat.
 
 ## Install
@@ -20,115 +15,148 @@ npm install xml-streamer
 
 `xml-streamer can be used in four ways`
 
-```javascript
+```typescript
 // 1. By passing the resourcePath and reading data by calling `read` method instead listening for data events.
 
-(function () {
-  "use strict";
+import {XmlParser} from "@drorgl/xml-streamer";
 
-  var Parser = require('xml-streamer')
-  
-  var opts = {resourcePath: '/items/item'}
+const opts = { resourcePath: "/items/item" };
 
-  var parser = new Parser(opts)
-  
-  parser.on('end', function () {
-    // parsing ended no more data events will be raised
-  })
+const parser = new XmlParser(opts);
 
-  parser.on('error', function (error) {
-    // error occurred
-    // NOTE: when error event emitted no end event will be emitted
-    console.error(error)
-  })
+parser.on("end", () => {
+	// parsing ended no more data events will be raised
+});
 
-  xmlStream.pipe(parser) // pipe your input xmlStream to parser.
-  // readable
-  parser.on('readable', function () {
-     // if you don't want to consume "data" on "data" events you can wait for readable event and consume data by calling parser.read() 
-  })
-  // after readable event occured you can call read method and get data.
-  parser.read() // will return one object at a time.
-}())
+parser.on("error", (error) => {
+	// error occurred
+	// NOTE: when error event emitted no end event will be emitted
+	console.error(error);
+});
+
+xmlStream.pipe(parser); // pipe your input xmlStream to parser.
+// readable
+parser.on("readable", () => {
+  // if you don't want to consume "data" on "data" events you can wait 
+  // for readable event and consume data by calling parser.read()
+});
+// after readable event occured you can call read method and get data.
+parser.read(); // will return one object at a time.
+
 
 // 2. By listening for interested nodes.
 
-(function () {
-  "use strict";
+import { XmlParser } from "@drorgl/xml-streamer";
 
-  var Parser = require('xml-streamer')
-  
-  var opts = {} // see `Available Constructor Options` section below.
+const opts = {}; // see `Available Constructor Options` section below.
 
-  var parser = new Parser(opts)
-  
-  parser.on('item', function (item) {
-    // consume the item object here
-  })
-  
-  parser.on('end', function () {
-    // parsing ended no more data events will be raised
-  })
+const parser = new XmlParser(opts);
 
-  parser.on('error', function (error) {
-    // error occurred
-    // NOTE: when error event emitted no end event will be emitted
-    console.error(error)
-  })
+parser.on("item", (item) => {
+	// consume the item object here
+});
 
-  xmlStream.pipe(parser) // pipe your input xmlStream to parser.
-  // readable
-  parser.on('readable', function () {
-      // if you don't want to consume "data" on "data" events you can wait for readable event and consume data by calling parser.read() 
-  })
-}())
+parser.on("end", () => {
+	// parsing ended no more data events will be raised
+});
+
+parser.on("error", (error) => {
+	// error occurred
+	// NOTE: when error event emitted no end event will be emitted
+	console.error(error);
+});
+
+xmlStream.pipe(parser); // pipe your input xmlStream to parser.
+// readable
+parser.on("readable", () => {
+  // if you don't want to consume "data" on "data" events you can wait 
+  //for readable event and consume data by calling parser.read()
+});
+
 
 // 3. By passing a resource path.
 
-(function () {
-  "use strict";
+import { XmlParser } from "@drorgl/xml-streamer";
 
-  var Parser = require('xml-streamer')
-  var opts = {resourcePath: '/items/item'}
-  
-  var parser = new Parser(opts)
-  
-  parser.on('data', function (data) {
-    // consume the data object here
-  })
-  
-  parser.on('end', function () {
-    // parsing ended no more data events will be raised
-  })
+const opts = { resourcePath: "/items/item" };
 
-  parser.on('error', function (error) {
-    // error occurred
-    // NOTE: when error event emitted no end event will be emitted
-    console.error(error)
-  })
+const parser = new XmlParser(opts);
 
-  xmlStream.pipe(parser) // pipe your input xmlStream to parser.
-  // readable
-  parser.on('readable', function () {
-      // if you don't want to consume "data" on "data" events you can wait for readable event and consume data by calling parser.read() 
-  })
-}())
+parser.on("data", (data) => {
+	// consume the data object here
+});
+
+parser.on("end", () => {
+	// parsing ended no more data events will be raised
+});
+
+parser.on("error", (error) => {
+	// error occurred
+	// NOTE: when error event emitted no end event will be emitted
+	console.error(error);
+});
+
+xmlStream.pipe(parser); // pipe your input xmlStream to parser.
+// readable
+parser.on("readable", () => {
+	// if you don't want to consume "data" on "data" events you
+	// can wait for readable event and consume data by calling parser.read()
+});
+
 
 // 4. By passing a string or buffer to parse function
 
-(function () {
-  "use strict";
+import { XmlParser } from "@drorgl/xml-streamer";
 
-  var Parser = require('xml-streamer')
-  
-  var opts = {resourcePath: '/items/item'} // resourcePath is manditory when using parse method
+const opts = { resourcePath: "/items/item" }; // resourcePath is manditory when using parse method
 
-  var parser = new Parser(opts)
-  
-  parser.parse(stringOrBuffer, function (err, data) {
-    // consume data here
-  })
-}())
+const parser = new XmlParser(opts);
+
+parser.parse(stringOrBuffer, (err, data) => {
+	// consume data here
+});
+
+// 5. Compressed Stream Parsing
+
+import { XmlParser } from "@drorgl/xml-streamer";
+import { StreamZip } from "node-stream-zip";
+
+const zip = new StreamZip({
+    file: archiveName,
+    storeEntries: true
+});
+
+
+const opts = {}; // see `Available Constructor Options` section below.
+
+const parser = new XmlParser(opts);
+
+parser.on("item", (item) => {
+	// consume the item object here
+});
+
+parser.on("end", () => {
+	// parsing ended no more data events will be raised
+});
+
+parser.on("error", (error) => {
+	// error occurred
+	// NOTE: when error event emitted no end event will be emitted
+	console.error(error);
+});
+
+xmlStream.pipe(parser); // pipe your input xmlStream to parser.
+// readable
+parser.on("readable", () => {
+	// if you don't want to consume "data" on "data" events you can wait for readable event and consume data by calling parser.read()
+});
+
+zip.on("ready", () => {
+    zip.stream('path/inside/zip.xml', (err, stm) => {
+        stm.pipe(parser);
+        stm.on('end', () => zip.close());
+    });
+});
 
 ```
 
@@ -262,36 +290,30 @@ npm install xml-streamer
                 ```
 
 
-## upcoming features
-
-1. `handling of compressed streams`
-2. `handling of different encodings`
-3. `Filtering of objects extracted from resourcePath based on xpaths and json paths`
-
-
 ## Namespace handling
 
 A word about special parsing of *xmlns:* Note that "resourcePath" in the options is not an XPATH.
 So the value given to the resourcePath is treated as simple value and no expression evaluations are done.
 
-## Benchmark
-
-`xml-streamer` internally uses `node-expat`
-
-`npm run benchmark`
-
-| module                                                                                | ops/sec | native | XML compliant | stream         |
-|---------------------------------------------------------------------------------------|--------:|:------:|:-------------:|:--------------:|
-| [sax-js](https://github.com/isaacs/sax-js)                                            |  99,412 | ☐      | ☑             | ☑              |
-| [node-xml](https://github.com/dylang/node-xml)                                        | 130,631 | ☐      | ☑             | ☑              |
-| [libxmljs](https://github.com/polotek/libxmljs)                                       | 276,136 | ☑      | ☑             | ☐              |
-| **node-expat**                                                                        | 322,769 | ☑      | ☑             | ☑              |
-
-Higher is better.
-
 ## Testing
 
 ```
-npm install -g standard
 npm test
+```
+
+## Coverage
+```
+npm coverage
+
+=============================== Coverage summary ===============================
+Statements   : 90.91% ( 340/374 )
+Branches     : 81.66% ( 187/229 )
+Functions    : 78.13% ( 25/32 )
+Lines        : 90.86% ( 318/350 )
+================================================================================
+```
+
+## Documentation
+```
+npm doc
 ```

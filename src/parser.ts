@@ -15,11 +15,49 @@ const defaults = {
 };
 
 export interface IXmlParserOptions {
+
+	/**
+	 * Optional field. Used to extract the XML nodes that you are interested in.
+	 *
+	 * @type {string}
+	 * @memberof IXmlParserOptions
+	 */
 	resourcePath?: string;
+	/**
+	 * Optional field. Set this to true if you want to listen on node names instead of data event. default: false
+	 *
+	 * @type {boolean}
+	 * @memberof IXmlParserOptions
+	 */
 	emitOnNodeName?: boolean;
+	/**
+	 * Optional field. pass the value with which you want to reference attributes of a node in its object form. default: '$'
+	 *
+	 * @type {string}
+	 * @memberof IXmlParserOptions
+	 */
 	attrsKey?: string;
+	/**
+	 * Optional field. pass the value with which you want to reference node value in its object form. default: '_'
+	 *
+	 * @type {string}
+	 * @memberof IXmlParserOptions
+	 */
 	textKey?: string;
+	/**
+	 * Optional field. Default value is true. All children nodes will come in an array when this option is true.
+	 *
+	 * @type {boolean}
+	 * @memberof IXmlParserOptions
+	 */
 	explicitArray?: boolean;
+	/**
+	 * Optional field. Default value is false. When set, text attribute will include all blanks found in xml.
+	 * When unset, blanks are removed as long as they come in one expat single block (blank lines, newlines and entities).
+	 *
+	 * @type {boolean}
+	 * @memberof IXmlParserOptions
+	 */
 	verbatimText?: boolean;
 	preserveWhitespace?: boolean;
 }
@@ -37,15 +75,9 @@ export class XmlParser extends stream.Transform {
 		this._readableState.objectMode = true;
 	}
 
-	public checkForInterestedNodeListeners() {
-		const ignore = ["end", "prefinish", "data", "error"];
-		const eventNames = Object.keys((this as any)._events);
-
-		// tslint:disable-next-line:prefer-for-of
-		for (let i = 0; i < eventNames.length; i++) {
-			if (_.includes(ignore, eventNames[i], 0)) { continue; }
-			this.parserState.interestedNodes.push(eventNames[i]);
-		}
+	public _flush(callback: () => void) {
+		this.processChunk("");
+		callback();
 	}
 
 	public _transform(chunk: Buffer | string, encoding: string, callback: () => void) {
@@ -53,18 +85,6 @@ export class XmlParser extends stream.Transform {
 
 		this.processChunk(chunk);
 		callback();
-	}
-
-	public processChunk(chunk: string | Buffer) {
-		const parser = this.parser;
-		const state = this.parserState;
-
-		if (state.isRootNode) {
-			this.checkForInterestedNodeListeners();
-			registerEvents.call(this);
-		}
-
-		parser.write(chunk);
 	}
 
 	public parse(chunk: Buffer | string, cb: (error: Error, data?: Buffer) => void) {
@@ -98,9 +118,27 @@ export class XmlParser extends stream.Transform {
 		return cb(null, result as any);
 	}
 
-	public _flush(callback: () => void) {
-		this.processChunk("");
-		callback();
+	private processChunk(chunk: string | Buffer) {
+		const parser = this.parser;
+		const state = this.parserState;
+
+		if (state.isRootNode) {
+			this.checkForInterestedNodeListeners();
+			registerEvents.call(this);
+		}
+
+		parser.write(chunk);
+	}
+
+	private checkForInterestedNodeListeners() {
+		const ignore = ["end", "prefinish", "data", "error"];
+		const eventNames = Object.keys((this as any)._events);
+
+		// tslint:disable-next-line:prefer-for-of
+		for (let i = 0; i < eventNames.length; i++) {
+			if (_.includes(ignore, eventNames[i], 0)) { continue; }
+			this.parserState.interestedNodes.push(eventNames[i]);
+		}
 	}
 
 }

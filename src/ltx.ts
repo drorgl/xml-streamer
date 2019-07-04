@@ -1,3 +1,4 @@
+// Source: https://github.com/xmppjs/ltx/blob/master/lib/parsers/ltx.js
 import events from "events";
 import { unescapeXML } from "./unescape";
 

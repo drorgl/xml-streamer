@@ -1,6 +1,6 @@
 {
   "version": "0.2.1",
-  "name": "xml-streamer",
+  "name": "@drorgl/xml-streamer",
   "description": "XML stream parser for parsing large files efficiently with less usage of memory.",
   "author": {
     "name": "Sai Teja",
@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sai1919/xml-streamer"
+    "url": "https://github.com/drorgl/xml-streamer"
   },
   "dependencies": {
     "lodash": "4.17.11"
@@ -35,7 +35,11 @@
     "@types/should": "^13.0.0",
     "ts-node": "^8.2.0",
     "tslint": "^5.17.0",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.1",
+    "rimraf": "^2.6.3",
+    "source-map-support": "^0.5.12",
+    "typedoc": "^0.14.2",
+    "nyc": "^14.1.1"
   },
   "optionalDependencies": {},
   "main": "dist/parser.js",
@@ -49,7 +53,10 @@
     "dryrun": "tsc -noEmit",
     "build": "tsc",
     "prepublish": "npm run lint && npm run dryrun && npm run test",
-    "install": "npm run build"
+    "install": "npm run build",
+    "coverage": "rimraf ./.nyc_output && rimraf ./coverage && nyc mocha -r ts-node/register -r source-map-support/register --ui bdd test/**/*.spec.{ts,tsx}\"",
+    "doc": "rimraf ./docs && typedoc",
+    "publish-now": "npm publish --access public"
   },
   "contributors": [
     {

@@ -43,9 +43,9 @@ function unescapeXMLReplace(match: string) {
 	throw new Error("Illegal XML entity " + match);
 }
 
-exports.escapeXML = function escapeXML(s: string) {
+export function escapeXML(s: string) {
 	return s.replace(/&|<|>|"|'/g, escapeXMLReplace);
-};
+}
 
 export function unescapeXML(s: string) {
 	let result = "";
@@ -74,10 +74,10 @@ export function unescapeXML(s: string) {
 	return result;
 }
 
-exports.escapeXMLText = function escapeXMLText(s: string) {
+export function escapeXMLText(s: string) {
 	return s.replace(/&|<|>/g, escapeXMLReplace);
-};
+}
 
-exports.unescapeXMLText = function unescapeXMLText(s: string) {
+export function unescapeXMLText(s: string) {
 	return s.replace(/&(amp|#38|lt|#60|gt|#62);/g, unescapeXMLReplace);
-};
+}
