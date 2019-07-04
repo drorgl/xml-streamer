@@ -8,7 +8,7 @@ Please note that ltx parser is about 20% slower than node-expat.
 ## Install
 
 ```
-npm install xml-streamer
+npm install @drorgl/xml-streamer
 ```
 
 ## Basic Usage
